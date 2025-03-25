@@ -2,6 +2,15 @@ from openai import OpenAI
 import base64
 from io import BytesIO
 from PIL import Image
+# 通过 pip install volcengine-python-sdk[ark] 安装方舟SDK
+from volcenginesdkarkruntime import Ark
+
+# 创建火山引擎客户端(用于视觉功能)
+ark_client = Ark(
+    api_key="99bab5bf-fdea-4d77-a6bc-b42ffbe2ddab"
+)
+# 火山引擎视觉模型ID
+vision_model = "doubao-1-5-vision-pro-32k-250115"
 
 # 创建OpenAI客户端
 client = OpenAI(api_key="sk-f545d93f2766414fb33a02bd20eab32a", base_url="https://api.deepseek.com")
@@ -47,7 +56,7 @@ def clear_history(session_id="default"):
     if session_id in chat_history:
         chat_history[session_id] = []
 
-# 分析图片内容
+# 分析图片内容 - 使用火山引擎视觉模型
 def analyze_image(image_data, prompt="描述这张图片", session_id="default"):
     """
     分析图片内容
@@ -65,30 +74,28 @@ def analyze_image(image_data, prompt="描述这张图片", session_id="default")
         chat_history[session_id] = []
     
     try:
-        # 准备包含图片的消息
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{image_data}"
-                        }
-                    }
-                ]
-            }
-        ]
+        # 创建data URI
+        image_uri = f"data:image/jpeg;base64,{image_data}"
         
-        # 使用支持视觉的模型
-        response = client.chat.completions.create(
-            model="DeepSeek-VL",  # 假设使用支持视觉的模型，请确认API支持
-            messages=messages
+        # 使用火山引擎的视觉模型
+        response = ark_client.chat.completions.create(
+            model=vision_model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": image_uri}
+                        }
+                    ]
+                }
+            ]
         )
         
         # 获取AI的回复
-        ai_response = response.choices[0].message
+        ai_content = response.choices[0].message.content
         
         # 添加用户消息到历史记录
         chat_history[session_id].append({
@@ -98,14 +105,15 @@ def analyze_image(image_data, prompt="描述这张图片", session_id="default")
         
         # 添加AI回复到历史记录
         chat_history[session_id].append({
-            "role": ai_response.role, 
-            "content": ai_response.content
+            "role": "assistant", 
+            "content": ai_content
         })
         
-        return ai_response.content
+        return ai_content
         
     except Exception as e:
-        # 如果API不支持图像处理，可以实现备用方案
+        # 如果API调用失败，使用备用方案
+        print(f"火山引擎视觉API调用失败: {str(e)}")
         return fallback_image_analysis(image_data, prompt, session_id)
 
 # 备选方案：图像分析
