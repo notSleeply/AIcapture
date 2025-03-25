@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Cookie,UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from chat import generate_chat_response, clear_history, analyze_image
+from chat import generate_chat_response, clear_history, analyze_image, image_followup
 import uuid
 import base64
 from typing import Optional
@@ -26,6 +26,9 @@ class ChatResponse(BaseModel):
     data: str
     session_id: str  # 返回会话ID给客户端
 
+class ImageFollowupRequest(BaseModel):
+    prompt: str
+    session_id: Optional[str] = None
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """处理聊天请求，返回AI回复"""
@@ -70,6 +73,23 @@ async def analyze_image_endpoint(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/image-followup")
+async def image_followup_endpoint(request: ImageFollowupRequest):
+    """处理图像后续提问请求"""
+    try:
+        if not request.session_id:
+            raise HTTPException(status_code=400, detail="需要会话ID才能继续图像对话")
+        
+        result = image_followup(request.prompt, request.session_id)
+        
+        return {
+            "data": result,
+            "session_id": request.session_id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn
