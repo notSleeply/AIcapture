@@ -1,23 +1,19 @@
-const {
-	ipcRenderer,
-	shell
-} = require('electron');
+const {ipcRenderer} = require('electron');
 
-function $(id) {
-	return document.getElementById(id);
-}
+
 
 const iswin32 = process.platform == 'win32';
 const islinux = process.platform == 'linux';
 const ismac = process.platform == 'darwin';
-const version = require('../package.json').version;
 
+// 快捷键
 let captureKey = localStorage.captureKey || 'Alt + S';
 let showKey = ismac ? 'Cmd + E' : 'Ctrl + E';
 let hideKey = ismac ? 'Cmd + W' : 'Ctrl + W';
 let quitKey = ismac ? 'Cmd + Q' : 'Ctrl + Q';
 showKey = localStorage.showKey || showKey;
 
+function $(id) { return document.getElementById(id); }
 const btnCapture = $('btnCapture');
 const btnConfig = $('btnConfig');
 const btnKeyboard = $('btnKeyboard');
@@ -33,7 +29,6 @@ const btnSetCaptureKey = $('btnSetCaptureKey');
 const btnDelCaptureKey = $('btnDelCaptureKey');
 const btnSetShowKey = $('btnSetShowKey');
 const btnDelShowKey = $('btnDelShowKey');
-const versionBox = $('versionBox');
 const launchInput = $('launchInput');
 const launchLabel = $('launchLabel');
 const hideInput = $('hideInput');
@@ -42,8 +37,8 @@ const toolInput = $('toolInput');
 const toolLabel = $('toolLabel');
 const tipsWrap = $('tipsWrap');
 const tipsContent = $('tipsContent');
-const github = $('github');
 
+console.log('大梦谁先觉,平生我自知');
 
 // 初始化
 function init() {
@@ -54,21 +49,21 @@ function init() {
 
 	// 配置
 	// 开机是否自动启动截图工具
-	if(+localStorage.launchInput) {
+	if (+localStorage.launchInput) {
 		launchInput.setAttribute('checked', true);
 	} else {
 		launchInput.removeAttribute('checked');
 	}
 	ipcRenderer.send('launch', +localStorage.launchInput);
 	// 截图时是否隐藏当前窗口
-	if(+localStorage.hideInput) {
+	if (+localStorage.hideInput) {
 		hideInput.setAttribute('checked', true);
 	} else {
 		hideInput.removeAttribute('checked');
 	}
 	ipcRenderer.send('is-hide-windows', +localStorage.hideInput);
 	// 是否保存截图工具的大小和颜色选择
-	if(+localStorage.toolInput) {
+	if (+localStorage.toolInput) {
 		toolInput.setAttribute('checked', true);
 	} else {
 		toolInput.removeAttribute('checked');
@@ -83,8 +78,6 @@ function init() {
 	ipcRenderer.send('setCaptureKey', captureKey);
 	ipcRenderer.send('setShowKey', showKey);
 
-	// 关于
-	versionBox.innerHTML = `版本：${version}`
 }
 init();
 
@@ -110,24 +103,28 @@ function hideBox() {
 let hasClickCut = false;
 let hideWindows = +localStorage.hideInput;
 btnCapture.addEventListener('click', () => {
+	alert("点击了截图按钮");
 	resetKey();
 
 	// 防止快速点击截图按钮
-    if(hasClickCut) {
-        return;
-    }
-    hasClickCut = true;
-    
+	if (hasClickCut) {
+		return;
+	}
+	hasClickCut = true;
+
 	// 截图时是否隐藏当前窗口
-    if(hideWindows) {
-        ipcRenderer.send('windows-hide');
-    }
-    ipcRenderer.send('cut-screen');
+	if (hideWindows) {
+		ipcRenderer.send('windows-hide');
+	}
+	ipcRenderer.send('cut-screen');
+	console.log("已发送 cut-screen 事件");
 }, false);
+
 // 防止快速点击截图按钮
 ipcRenderer.on('has-click-cut', (e, status) => {
-    hasClickCut = status;
+	hasClickCut = status;
 });
+
 // 截图完成显示提示弹层
 ipcRenderer.on('popup-tips', () => {
 	tipsWrap.style.display = 'block';
@@ -147,19 +144,8 @@ btnConfig.addEventListener('click', () => {
 	btnConfig.classList.add('active');
 	configBox.style.display = "block";
 }, false);
-// 开机是否自动启动截图工具
-launchInput.addEventListener('click', () => {
-	if(launchInput.hasAttribute('checked')) {
-		launchInput.removeAttribute('checked');
-		localStorage.launchInput = 0;
-	} else {
-		launchInput.setAttribute('checked', true);
-		localStorage.launchInput = 1;
-	}
-	ipcRenderer.send('launch', +localStorage.launchInput);
-}, false);
 launchLabel.addEventListener('click', () => {
-	if(launchInput.hasAttribute('checked')) {
+	if (launchInput.hasAttribute('checked')) {
 		localStorage.launchInput = 0;
 	} else {
 		localStorage.launchInput = 1;
@@ -168,7 +154,7 @@ launchLabel.addEventListener('click', () => {
 }, false);
 // 截图时是否隐藏当前窗口
 hideInput.addEventListener('click', () => {
-	if(hideInput.hasAttribute('checked')) {
+	if (hideInput.hasAttribute('checked')) {
 		hideInput.removeAttribute('checked');
 		localStorage.hideInput = 0;
 	} else {
@@ -179,7 +165,7 @@ hideInput.addEventListener('click', () => {
 	hideWindows = +localStorage.hideInput;
 }, false);
 hideLabel.addEventListener('click', () => {
-	if(hideInput.hasAttribute('checked')) {
+	if (hideInput.hasAttribute('checked')) {
 		localStorage.hideInput = 0;
 	} else {
 		localStorage.hideInput = 1;
@@ -189,7 +175,7 @@ hideLabel.addEventListener('click', () => {
 }, false);
 // 是否保存截图工具的大小和颜色选择
 toolInput.addEventListener('click', () => {
-	if(toolInput.hasAttribute('checked')) {
+	if (toolInput.hasAttribute('checked')) {
 		toolInput.removeAttribute('checked');
 		localStorage.toolInput = 0;
 	} else {
@@ -198,7 +184,7 @@ toolInput.addEventListener('click', () => {
 	}
 }, false);
 toolLabel.addEventListener('click', () => {
-	if(toolInput.hasAttribute('checked')) {
+	if (toolInput.hasAttribute('checked')) {
 		localStorage.toolInput = 0;
 	} else {
 		localStorage.toolInput = 1;
@@ -282,9 +268,9 @@ document.addEventListener('keydown', event => {
 		let keyname = '';
 
 		// 只允许输入Alt、Control、Shift、Command、数字和字母
-	    if(code < 48 || (code > 57 && code < 65) || (code > 91 && code < 96) || code > 105) {
-	        if(code != 16 && code != 17 && code != 18) {
-	            switch(keyKind) {
+		if (code < 48 || (code > 57 && code < 65) || (code > 91 && code < 96) || code > 105) {
+			if (code != 16 && code != 17 && code != 18) {
+				switch (keyKind) {
 					case 1:
 						captureKeyBox.innerHTML = '输入截图快捷键';
 						break;
@@ -292,25 +278,25 @@ document.addEventListener('keydown', event => {
 						showKeyBox.innerHTML = '输入显示快捷键';
 						break;
 				}
-	            return alert('快捷键只允许输入Alt、Control、Shift、Command、数字和字母，请重新设置！');
-	        }
-	    }
+				return alert('快捷键只允许输入Alt、Control、Shift、Command、数字和字母，请重新设置！');
+			}
+		}
 
-	    // if(e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) {
-	    if(code == 16 || code == 17 || code == 18 || code == 91 ) {
-	        keyname = event.key;
-	        // Mac系统的metaKey键
-	        if(code == 91) {
-	            keyname = 'Cmd';
-	        }
-	    } else {
-	        keyname = String.fromCharCode(event.keyCode);
-	    }
+		// if(e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) {
+		if (code == 16 || code == 17 || code == 18 || code == 91) {
+			keyname = event.key;
+			// Mac系统的metaKey键
+			if (code == 91) {
+				keyname = 'Cmd';
+			}
+		} else {
+			keyname = String.fromCharCode(event.keyCode);
+		}
 
-	    shortKey += split + keyname;
-	    split = ' + ';
+		shortKey += split + keyname;
+		split = ' + ';
 
-		switch(keyKind) {
+		switch (keyKind) {
 			case 1:
 				captureKeyBox.innerHTML = shortKey;
 				captureKey = shortKey;
@@ -358,7 +344,4 @@ btnAbout.addEventListener('click', () => {
 	hideBox();
 	btnAbout.classList.add('active');
 	aboutBox.style.display = "block";
-}, false);
-github.addEventListener('click', () => {
-	shell.openExternal('https://github.com/xudeming208');
 }, false);

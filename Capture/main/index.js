@@ -28,11 +28,6 @@ let windowOption = {
         nodeIntegration: true 
     }
 }
-
-console.log(process.versions.electron)
-console.log(process.versions.chrome)
-console.log(process.versions.node)
-
 function createWindow() {
     win = new BrowserWindow(windowOption)
     win.loadURL(winURL);
@@ -41,4 +36,5 @@ function createWindow() {
 
 app.on('ready', () => {
     createWindow();
+    captureWin(win);
 });

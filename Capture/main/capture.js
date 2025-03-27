@@ -211,6 +211,7 @@ function cutWindow(IMwindow) {
 
     // 点击截图按钮截图
     ipcMain.on('cut-screen', (event, type) => {
+        console.log("点击了截图按钮");
         // IM窗口为全屏化时，切图时会先缩小IM窗口，不会隐藏窗口，不管是否设置为“截图时隐藏窗口与否”
         if (IMwindow.isFullScreen()) {
             IMwindow.setFullScreen(false);
