@@ -1,7 +1,8 @@
-const path = require('path');
 const { app, BrowserWindow } = require('electron');
-const log = require('fe-logs');
 const { format } = require('url');
+const path = require('path');
+const log = require('fe-logs');
+const captureWin = require('./capture');
 
 // 日志
 log.setMode('error');
