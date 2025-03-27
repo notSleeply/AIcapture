@@ -1,4 +1,6 @@
 /backend/__pycache__/
 /backend/__pycache__/*
 /client/node_modules/
+/Capture/node_modules/
+/Capture/dist/
 .vscode/

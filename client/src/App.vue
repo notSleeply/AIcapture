@@ -222,6 +222,7 @@ async function analyzeImage() {
         </div>
     </div>
 </template>
+
 <style scoped>
 .chat-container {
     max-height: 500px;

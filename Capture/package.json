@@ -1,0 +1,39 @@
+{
+  "name": "capture",
+  "version": "1.0.0",
+  "main": "./main/index.js",
+  "scripts": {
+    "dev": "electron .",
+    "start": "nodemon --exec electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.atguigu.video",
+    "win": {
+      "icon": "./static/icons/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron-builder": "^26.0.12",
+    "electron": "latest"
+  },
+  "dependencies": {
+    "fe-logs": "^1.0.13"
+  }
+}

@@ -198,7 +198,6 @@ def image_followup(prompt, session_id="default"):
         # 如果失败了，回退到普通文字对话
         return generate_chat_response(f"关于之前的图片：{prompt}", session_id)
 
-
 # 备选方案：图像分析
 def fallback_image_analysis(image_data, prompt, session_id):
     """备用的图像分析方法"""
