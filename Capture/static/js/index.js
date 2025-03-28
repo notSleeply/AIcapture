@@ -1,18 +1,3 @@
-const {ipcRenderer} = require('electron');
-
-
-
-const iswin32 = process.platform == 'win32';
-const islinux = process.platform == 'linux';
-const ismac = process.platform == 'darwin';
-
-// 快捷键
-let captureKey = localStorage.captureKey || 'Alt + S';
-let showKey = ismac ? 'Cmd + E' : 'Ctrl + E';
-let hideKey = ismac ? 'Cmd + W' : 'Ctrl + W';
-let quitKey = ismac ? 'Cmd + Q' : 'Ctrl + Q';
-showKey = localStorage.showKey || showKey;
-
 function $(id) { return document.getElementById(id); }
 const btnCapture = $('btnCapture');
 const btnConfig = $('btnConfig');
@@ -38,50 +23,7 @@ const toolLabel = $('toolLabel');
 const tipsWrap = $('tipsWrap');
 const tipsContent = $('tipsContent');
 
-console.log('大梦谁先觉,平生我自知');
-
-// 初始化
-function init() {
-	// tab
-	hideBox();
-	btnConfig.classList.add('active');
-	configBox.style.display = "block";
-
-	// 配置
-	// 开机是否自动启动截图工具
-	if (+localStorage.launchInput) {
-		launchInput.setAttribute('checked', true);
-	} else {
-		launchInput.removeAttribute('checked');
-	}
-	ipcRenderer.send('launch', +localStorage.launchInput);
-	// 截图时是否隐藏当前窗口
-	if (+localStorage.hideInput) {
-		hideInput.setAttribute('checked', true);
-	} else {
-		hideInput.removeAttribute('checked');
-	}
-	ipcRenderer.send('is-hide-windows', +localStorage.hideInput);
-	// 是否保存截图工具的大小和颜色选择
-	if (+localStorage.toolInput) {
-		toolInput.setAttribute('checked', true);
-	} else {
-		toolInput.removeAttribute('checked');
-	}
-
-	// 快捷键
-	captureKeyBox.innerHTML = captureKey;
-	hideKeyBox.innerHTML = hideKey;
-	showKeyBox.innerHTML = showKey;
-	quitKeyBox.innerHTML = quitKey;
-	// 和主进程通讯，注册新的快捷键
-	ipcRenderer.send('setCaptureKey', captureKey);
-	ipcRenderer.send('setShowKey', showKey);
-
-}
-init();
-
-
+console.log('测试测试myAPI::', myAPI.version);
 // 移除active样式
 function removeActive() {
 	btnConfig.classList.remove('active');
@@ -90,12 +32,6 @@ function removeActive() {
 }
 
 
-// 隐藏box
-function hideBox() {
-	keyboardBox.style.display = "none";
-	aboutBox.style.display = "none";
-	configBox.style.display = "none";
-}
 
 
 
@@ -103,28 +39,12 @@ function hideBox() {
 let hasClickCut = false;
 let hideWindows = +localStorage.hideInput;
 btnCapture.addEventListener('click', () => {
-	alert("点击了截图按钮");
-	resetKey();
-
 	// 防止快速点击截图按钮
-	if (hasClickCut) {
-		return;
-	}
+	if (hasClickCut) {return;}
 	hasClickCut = true;
 
-	// 截图时是否隐藏当前窗口
-	if (hideWindows) {
-		ipcRenderer.send('windows-hide');
-	}
-	ipcRenderer.send('cut-screen');
-	console.log("已发送 cut-screen 事件");
+	myAPI.cutScreen();
 }, false);
-
-// 防止快速点击截图按钮
-ipcRenderer.on('has-click-cut', (e, status) => {
-	hasClickCut = status;
-});
-
 // 截图完成显示提示弹层
 ipcRenderer.on('popup-tips', () => {
 	tipsWrap.style.display = 'block';
@@ -333,15 +253,4 @@ document.addEventListener('keyup', event => {
 		ipcRenderer.send('setCaptureKey', captureKey);
 		ipcRenderer.send('setShowKey', showKey);
 	}
-}, false);
-
-
-
-// 关于
-btnAbout.addEventListener('click', () => {
-	resetKey();
-	removeActive();
-	hideBox();
-	btnAbout.classList.add('active');
-	aboutBox.style.display = "block";
 }, false);

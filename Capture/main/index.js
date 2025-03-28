@@ -25,7 +25,8 @@ let windowOption = {
     title: '截图工具',
     webPreferences: {
         devTools: true, 
-        nodeIntegration: true 
+        nodeIntegration: true,
+        preload: path.join(__dirname, '../preloader/preload.js'),
     }
 }
 function createWindow() {

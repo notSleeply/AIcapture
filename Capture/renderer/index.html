@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8" />
 	<title>截图工具</title>
 	<link rel="stylesheet" href="../static/css/index.css" />
 </head>
+
 <body>
 	<div class="window">
 		<div class="window-content">
@@ -30,54 +32,54 @@
 				</div>
 				<div class="pane">
 					<div class="config" id="configBox">
-					  	<div class="box-item">
-					  		<input type="checkbox" id="hideInput">
-					  		<label for="hideInput" id="hideLabel">截图时是否隐藏当前窗口</label>
-					  	</div>
-					  	<div class="box-item">
-					  		<input type="checkbox" id="toolInput">
-					  		<label for="toolInput" id="toolLabel">是否保存截图各工具的大小和颜色选择</label>
-					  	</div>
-					  	<div class="box-item box-item-disabled">
-					  		<input disabled type="checkbox" id="miniInput" checked>
-					  		<label for="miniInput" id="miniLabel">点击关闭按钮最小化窗口</label>
-					  	</div>
-					  	<div class="box-item box-item-disabled">
-					  		<input disabled type="checkbox" id="clipboardInput" checked>
-					  		<label for="clipboardInput" id="clipboardLabel">总是将截图复制到"剪切板"</label>
-					  	</div>
+						<div class="box-item">
+							<input type="checkbox" id="hideInput">
+							<label for="hideInput" id="hideLabel">截图时是否隐藏当前窗口</label>
+						</div>
+						<div class="box-item">
+							<input type="checkbox" id="toolInput">
+							<label for="toolInput" id="toolLabel">是否保存截图各工具的大小和颜色选择</label>
+						</div>
+						<div class="box-item box-item-disabled">
+							<input disabled type="checkbox" id="miniInput" checked>
+							<label for="miniInput" id="miniLabel">点击关闭按钮最小化窗口</label>
+						</div>
+						<div class="box-item box-item-disabled">
+							<input disabled type="checkbox" id="clipboardInput" checked>
+							<label for="clipboardInput" id="clipboardLabel">总是将截图复制到"剪切板"</label>
+						</div>
 					</div>
 					<div class="keyboard" id="keyboardBox">
 						<div class="box-item">
 							<label>截图快捷键：</label>
-					  		<p class="keyboard" id="captureKeyBox"></p>
-					  		<span class="icon icon-pencil" id="btnSetCaptureKey"></span>
-					  		<span class="icon icon-trash" id="btnDelCaptureKey"></span>
-					  	</div>
-					  	<div class="box-item">
+							<p class="keyboard" id="captureKeyBox"></p>
+							<span class="icon icon-pencil" id="btnSetCaptureKey"></span>
+							<span class="icon icon-trash" id="btnDelCaptureKey"></span>
+						</div>
+						<div class="box-item">
 							<label>显示快捷键：</label>
-					  		<p class="keyboard" id="showKeyBox"></p>
-					  		<span class="icon icon-pencil" id="btnSetShowKey"></span>
-					  		<span class="icon icon-trash" id="btnDelShowKey"></span>
-					  	</div>
-					  	<div class="box-item box-item-disabled">
+							<p class="keyboard" id="showKeyBox"></p>
+							<span class="icon icon-pencil" id="btnSetShowKey"></span>
+							<span class="icon icon-trash" id="btnDelShowKey"></span>
+						</div>
+						<div class="box-item box-item-disabled">
 							<label>退出截图键：</label>
-					  		<p class="keyboard">ESC</p>
-					  		<span class="icon icon-pencil"></span>
-					  		<span class="icon icon-trash"></span>
-					  	</div>
-					  	<div class="box-item box-item-disabled">
+							<p class="keyboard">ESC</p>
+							<span class="icon icon-pencil"></span>
+							<span class="icon icon-trash"></span>
+						</div>
+						<div class="box-item box-item-disabled">
 							<label>隐藏快捷键：</label>
-					  		<p class="keyboard" id="hideKeyBox"></p>
-					  		<span class="icon icon-pencil"></span>
-					  		<span class="icon icon-trash"></span>
-					  	</div>
-					  	<div class="box-item box-item-disabled">
+							<p class="keyboard" id="hideKeyBox"></p>
+							<span class="icon icon-pencil"></span>
+							<span class="icon icon-trash"></span>
+						</div>
+						<div class="box-item box-item-disabled">
 							<label>退出快捷键：</label>
-					  		<p class="keyboard" id="quitKeyBox"></p>
-					  		<span class="icon icon-pencil"></span>
-					  		<span class="icon icon-trash"></span>
-					  	</div>
+							<p class="keyboard" id="quitKeyBox"></p>
+							<span class="icon icon-pencil"></span>
+							<span class="icon icon-trash"></span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -89,4 +91,5 @@
 	</div>
 	<script src="../static/js/index.js"></script>
 </body>
+
 </html>

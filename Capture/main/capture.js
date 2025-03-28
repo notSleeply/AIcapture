@@ -58,22 +58,6 @@ function createWindow() {
     // 获取屏幕数
     let displays = require('electron').screen.getAllDisplays();
 
-    // 由于Chrome内核的原因，Linux系统无法区分多个屏幕，它所有的屏幕ID都是0:0，不像windows和Mac
-    // 所以这里禁止2个屏幕截屏
-    if (islinux && displays.length > 1) {
-        dialog.showMessageBox({
-            type: 'none',
-            message: '由于Chromium的bug，Linux系统只允许一个屏幕的截图',
-            title: '提示',
-            buttons: ['确定']
-        }).then(() => {
-            cutFun();
-            IMwindow.webContents.send('has-click-cut', false);
-            IMwindow.show();
-        });
-        return;
-    }
-
     mainWindows = displays.map(display => {
         let winOption = {
             fullscreen: iswin32 || undefined,
@@ -88,39 +72,21 @@ function createWindow() {
             hasShadow: false,
             enableLargerThanScreen: true,
             webPreferences: {
-                // 允许打开调试窗口
                 devTools: isDev,
-                // 允许html中运行nodejs
-                nodeIntegration: true
+                nodeIntegration: true,
+                contextIsolation: true,
+                preload: path.resolve(__dirname, '../preloader/preload.js')
             }
         }
 
         // 对Windows的基本主题和高对比度主题单独处理，因为它不支持transparent
-        if (iswin32 && !global.isAero) {
-            winOption.opacity = 0.0;
-        }
-
-        if (islinux) {
-            delete winOption.resizable;
-        }
-
-        let mainWindow = new BrowserWindow(winOption);
-
-        // 打开开发者工具
-        isDev && mainWindow.webContents.openDevTools();
-
-        mainWindow.setAlwaysOnTop(true, 'screen-saver');
-        // mainWindow.setVisibleOnAllWorkspaces(true);
-        // mainWindow.setFullScreenable(false);
-
-
-        // win10系统需要这样设置全屏，不能通过fullscreen参数
-        // if (iswin32) {
-        //     mainWindow.setFullScreen(true);
+        // if (iswin32 && !global.isAero) {
+        //     winOption.opacity = 0.0;
         // }
 
+        let mainWindow = new BrowserWindow(winOption);
+        mainWindow.setAlwaysOnTop(true, 'screen-saver');
         mainWindow.setSkipTaskbar(true);
-
         mainWindow.loadURL(winURL);
 
         return mainWindow;
@@ -196,13 +162,6 @@ function cutWindow(IMwindow) {
     cutFun();
     quitCutFun();
 
-    // linux全屏
-    ipcMain.on('linux-fullscreen', (event, type) => {
-        mainWindows.forEach(win => {
-            win.setFullScreen(true);
-        });
-    });
-
 
     // 和渲染进程通讯
     ipcMain.on('window-edit', (event, type) => {
@@ -211,21 +170,10 @@ function cutWindow(IMwindow) {
 
     // 点击截图按钮截图
     ipcMain.on('cut-screen', (event, type) => {
-        console.log("点击了截图按钮");
-        // IM窗口为全屏化时，切图时会先缩小IM窗口，不会隐藏窗口，不管是否设置为“截图时隐藏窗口与否”
-        if (IMwindow.isFullScreen()) {
-            IMwindow.setFullScreen(false);
-        }
+        console.log("YOU CLICK!!!!!");
 
         createWindow();
-        // 激活退出快捷键
         quitCutFun();
-    });
-
-
-    // 截图时是否隐藏当前窗口
-    ipcMain.on('is-hide-windows', (event, isHide) => {
-        isCutHideWindows = isHide;
     });
 
 
@@ -242,13 +190,6 @@ function cutWindow(IMwindow) {
             console.error(error);
         }
     });
-
-    // linux系统，不能在render进程调用clipboard、nativeImage，必须要在主进程中调用
-    if (islinux) {
-        ipcMain.on('linux-clipboard', (event, url) => {
-            clipboard.writeImage(nativeImage.createFromDataURL(url));
-        });
-    }
 }
 
 module.exports = cutWindow;

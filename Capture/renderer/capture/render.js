@@ -1,14 +1,16 @@
-const {
-	ipcRenderer
-} = require('electron');
+// 移除 Electron 相关引用
+// const { ipcRenderer } = require('electron');
 
-const {
-	$,
-	currentWidth,
-	currentHeight
-} = require('./getCurWin');
+// 改用直接导入函数
+// const { $, currentWidth, currentHeight } = require('./getCurWin');
+// 替换为：
+function $(id) {
+	return document.getElementById(id);
+}
+const currentWidth = window.innerWidth;
+const currentHeight = window.innerHeight;
 
-require('./edit');
+// 不再需要 require('./edit'); 改为直接通过script标签引入
 
 const imgDom = $('screenImg');
 const canvasDom = $('canvas');
@@ -20,7 +22,7 @@ const coordinateInner = $('coordinateInner');
 const canvasSize = $('canvasSize');
 
 // 画布历史记录
-global.historyArr = [];
+window.historyArr = [];
 
 // retina显示屏和普通显示屏
 const ratio = window.devicePixelRatio || 1;
@@ -368,26 +370,24 @@ global.mouseupFun = e => {
 	if (canvasWidth || canvasHeight) {
 		localStorage.hasDrag = 1;
 
-		// 这里将base64存储在localStorage中，主要是避免在一个屏幕截图，在另一个屏幕双击拷贝到剪切板中，截图为空白的bug。
-		// bug的原因：多个屏幕的document为相互独立的（因为主进程中用的map，每个window都载入页面），在没有截图的屏幕双击拷贝的是当前屏幕的document的canvas，而不是截图的屏幕的document的canvas
+		// 将base64存储在localStorage中
 		let cutImgUrl = canvasDom.toDataURL();
 		localStorage.cutImgUrl = cutImgUrl;
 
 		// 将画布存入缓存，用于将来撤销上一步操作
-		global.historyArr[0] = cutImgUrl;
+		window.historyArr[0] = cutImgUrl;
 	}
 }
 
-// 截图
+// 截图初始化
 function init() {
-	ipcRenderer.on('capture-finish', () => {
+	document.addEventListener('screenshot-ready', () => {
 		localStorage.hasDrag = 0;
 	});
-
 
 	document.addEventListener('mousedown', mousedownFun, false);
 	document.addEventListener('mousemove', mousemoveFun, false);
 	document.addEventListener('mouseup', mouseupFun, false);
 }
 
-exports.cut = init;
+window.renderInit = init;
