@@ -24,6 +24,11 @@ const tipsWrap = $('tipsWrap');
 const tipsContent = $('tipsContent');
 
 console.log('测试测试myAPI::', myAPI.version);
+
+// 初始化状态变量
+let captureKey = localStorage.captureKey || '';
+let showKey = localStorage.showKey || '';
+
 // 移除active样式
 function removeActive() {
 	btnConfig.classList.remove('active');
@@ -31,9 +36,12 @@ function removeActive() {
 	btnAbout.classList.remove('active');
 }
 
-
-
-
+// 隐藏所有窗口
+function hideBox() {
+	configBox.style.display = "none";
+	keyboardBox.style.display = "none";
+	aboutBox.style.display = "none";
+}
 
 // 截图
 let hasClickCut = false;
@@ -53,8 +61,6 @@ ipcRenderer.on('popup-tips', () => {
 		tipsWrap.style.display = 'none';
 	}, 2000);
 });
-
-
 
 // 配置
 btnConfig.addEventListener('click', () => {
@@ -110,9 +116,6 @@ toolLabel.addEventListener('click', () => {
 		localStorage.toolInput = 1;
 	}
 }, false);
-
-
-
 
 // 快捷键
 // 1代表截图快捷键，2代表显示快捷键
@@ -178,6 +181,15 @@ function resetKey() {
 	captureKeyBox.innerHTML = captureKey ? captureKey : '无截图快捷键';
 	showKeyBox.innerHTML = showKey ? showKey : '无显示快捷键';
 }
+
+// 添加关于按钮事件
+btnAbout.addEventListener('click', () => {
+	resetKey();
+	removeActive();
+	hideBox();
+	btnAbout.classList.add('active');
+	aboutBox.style.display = "block";
+}, false);
 
 // 输入新的快捷键
 let shortKey = '';

@@ -1,20 +1,35 @@
-const { contextBridge, ipcRenderer, desktopCapturer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
+// 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('myAPI', {
     version: process.version,
     cutScreen: () => {
-        ipcRenderer.send('cut-screen')
+        ipcRenderer.send('cut-screen');
+    }
+});
+
+// 暴露ipcRenderer给渲染进程
+contextBridge.exposeInMainWorld('ipcRenderer', {
+    on: (channel, func) => {
+        // 白名单通道
+        const validChannels = ['popup-tips', 'has-click-cut', 'update-hide-status'];
+        if (validChannels.includes(channel)) {
+            ipcRenderer.on(channel, (event, ...args) => func(...args));
+        }
     },
-    captureScreen: async (options = {}) => {
-        try {
-            const sources = await desktopCapturer.getSources({
-                types: ['screen'],
-                thumbnailSize: options.thumbnailSize
-            });
-            return sources;
-        } catch (error) {
-            console.error('捕获屏幕失败:', error);
-            return { error: error.message };
+    send: (channel, data) => {
+        // 白名单通道
+        const validChannels = [
+            'cut-screen', 
+            'setCaptureKey', 
+            'setShowKey', 
+            'launch', 
+            'is-hide-windows',
+            'insert-canvas',
+            'linux-clipboard'
+        ];
+        if (validChannels.includes(channel)) {
+            ipcRenderer.send(channel, data);
         }
     }
-})
+});

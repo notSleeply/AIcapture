@@ -1,195 +1,186 @@
-// 原理：
-// 1、普通模式下：先利用transparent创建透明的、全屏的、置顶的窗口，加载页面，页面中利用navigator.mediaDevices.getUserMedia获取整个屏幕截图，然后在屏幕截图上再canvas；
-// 2、因为Windows的基本主题和高对比度主题不支持transparent，处理方式为：先利用opacity创建完全透明的窗口，
-// 再截取整个屏幕，然后再将窗口调至不透明，然后再canvas；
-// 提示：
-// 1、普通模式下也可以利用第2种方法，但是截取整个屏幕中间会闪一下（因为先加载不透明的窗口，会显示黑色，然后窗口再加载半透明的图片），效果不好，所以没采用；
-// 2、基本主题和高对比度主题下，如果不按照第2种方法，截取的整个屏幕会是透明的，导致canvas后的结果也是透明的；
-
-// 问题：
-// 1. 截图延迟
-//     - 由于截图目前有一定时间的延迟，所以对截图技术进行了一天左右时间的调研。截图目前采用的技术是navigator.mediaDevices.getUserMedia
-//     - 因为有一定时间的延迟，所以我尝试了其他的一些方案，但是都不理想，延迟和现有技术差别不大，如需改进，可能要尝试客户端开发等技术：
-//         1. 利用先创ctron的desktopCapturer.getSources
-//         3. 利用electron的capturePage，有bug
-//         4. Mac利建截图窗口，再隐藏窗口，而不是每次截图都新建窗口
-//         2. Mac利用原生命令行screencapture，Windows和Linux有相应的程序包。Mac截图可以利用原生的快捷键command+shift+4，截取的图片在桌面上
-// 2. Linux只支持单屏幕截图。由于Chrome内核的原因，Linux系统无法区分多个屏幕，它所有的屏幕ID都是0:0，不像windows和Mac。参考：https://github.com/electron/electron/issues/21321
-// 3. 高版本electron获取的是黑屏的问题，参考https://github.com/electron/electron/issues/21063
-
-
-// 截图
+const { globalShortcut, ipcMain, clipboard, nativeImage } = require('electron');
+const Screenshots = require('electron-screenshots');
 const path = require('path');
+const fs = require('fs');
 
-const {
-    BrowserWindow,
-    ipcMain,
-    globalShortcut,
-    systemPreferences,
-    clipboard,
-    nativeImage,
-    dialog
-} = require('electron');
-const isDev = process.env.NODE_ENV === 'development';
+const { app } = require('electron');
 
-let mainWindows = [];
-let iswin32 = process.platform == 'win32';
-let islinux = process.platform == 'linux';
-global.isAero = false;
+// 平台检测
+const islinux = process.platform === 'linux';
 
-const winURL = `file://${path.resolve(__dirname, '../renderer/capture/index.html')}`;
-
-// 截图时隐藏IM窗口
-let isCutHideWindows = false;
-
-// 截图快捷键
-let cutKey = 'Alt + S';
-if (iswin32) {
-    // 因为Windows的基本主题和高对比度主题对transparent: true的兼容问题，这里区分Windows系统的主题，根据不同的主题设置不同的方案
-    global.isAero = systemPreferences.isAeroGlassEnabled();
-
-    cutKey = 'Alt + S';
-}
-// 退出快捷键
-let quitKey = 'Esc';
-
-// 创建窗口
-function createWindow() {
-    // 获取屏幕数
-    let displays = require('electron').screen.getAllDisplays();
-
-    mainWindows = displays.map(display => {
-        let winOption = {
-            fullscreen: iswin32 || undefined,
-            width: display.bounds.width,
-            height: display.bounds.height,
-            x: display.bounds.x,
-            y: display.bounds.y,
-            frame: false,
-            transparent: true,
-            movable: false,
-            resizable: false,
-            hasShadow: false,
-            enableLargerThanScreen: true,
-            webPreferences: {
-                devTools: isDev,
-                nodeIntegration: true,
-                contextIsolation: true,
-                preload: path.resolve(__dirname, '../preloader/preload.js')
+/**
+ * 截图主控制器
+ * @param {BrowserWindow} mainWindow - 主窗口引用
+ */
+function captureController(mainWindow) {
+    // 保存主窗口引用
+    global.IMwindow = mainWindow;
+    
+    // 默认隐藏设置
+    global.isCutHideWindows = false;
+    
+    // 初始化快捷键
+    let cutKey = '';
+    let showKey = '';
+    
+    // 创建截图实例
+    const screenshots = new Screenshots({
+        // 指定快捷键（阻止重复实例化）
+        singleInstanceLock: true,
+        
+        // 自定义样式
+        styles: {
+            toolbarIcon: '#409EFF',      // 工具栏图标颜色
+            windowBgColor: '#80808080',  // 背景色
+        }
+    });
+    
+    // 监听截图完成事件
+    screenshots.on('ok', (e, buffer, bounds) => {
+        console.log('截图完成', bounds);
+        
+        // 创建临时图片文件
+        const imgPath = path.join(app.getPath('temp'), `screenshot-${Date.now()}.png`);
+        
+        // 将截图写入系统剪贴板
+        clipboard.writeImage(nativeImage.createFromBuffer(buffer));
+        
+        // 恢复主窗口显示
+        if (global.isCutHideWindows && mainWindow) {
+            mainWindow.show();
+        }
+        
+        // 通知渲染进程截图已完成
+        mainWindow.webContents.send('popup-tips');
+        
+        // 恢复点击状态
+        mainWindow.webContents.send('has-click-cut', false);
+    });
+    
+    // 监听截图取消事件
+    screenshots.on('cancel', () => {
+        console.log('截图取消');
+        
+        // 恢复主窗口显示
+        if (global.isCutHideWindows && mainWindow) {
+            mainWindow.show();
+        }
+        
+        // 恢复点击状态
+        mainWindow.webContents.send('has-click-cut', false);
+    });
+    
+    // 监听截图错误事件
+    screenshots.on('error', (error) => {
+        console.error('截图错误:', error);
+        
+        // 恢复主窗口显示
+        if (global.isCutHideWindows && mainWindow) {
+            mainWindow.show();
+        }
+        
+        // 恢复点击状态
+        mainWindow.webContents.send('has-click-cut', false);
+    });
+    
+    // 开始截图的IPC处理
+    ipcMain.on('cut-screen', () => {
+        console.log('收到截图请求');
+        
+        // 如果设置了隐藏窗口，则先隐藏
+        if (global.isCutHideWindows && mainWindow) {
+            if (mainWindow.isFullScreen()) {
+                mainWindow.setFullScreen(false);
             }
+            mainWindow.hide();
         }
-
-        // 对Windows的基本主题和高对比度主题单独处理，因为它不支持transparent
-        // if (iswin32 && !global.isAero) {
-        //     winOption.opacity = 0.0;
-        // }
-
-        let mainWindow = new BrowserWindow(winOption);
-        mainWindow.setAlwaysOnTop(true, 'screen-saver');
-        mainWindow.setSkipTaskbar(true);
-        mainWindow.loadURL(winURL);
-
-        return mainWindow;
+        
+        // 开始截图
+        screenshots.startCapture();
     });
-}
-
-
-// 截图快捷键
-function cutFun() {
-    globalShortcut.register(cutKey, () => {
-        // IM窗口为全屏化时，切图时会先缩小IM窗口，不会隐藏窗口，不管是否设置为“截图时隐藏窗口与否”
-        if (IMwindow.isFullScreen()) {
-            IMwindow.setFullScreen(false);
-        }
-        // 截图时隐藏IM窗口
-        if (isCutHideWindows) {
-            IMwindow.hide();
-        }
-
-        createWindow();
-
-        // 注销截图快捷键
-        globalShortcut.unregister(cutKey);
-        quitCutFun();
-    });
-}
-
-// 退出截图快捷键
-function quitCutFun() {
-    globalShortcut.register(quitKey, () => {
-        windowEdit('quit');
-    });
-}
-
-
-// 窗口编辑
-function windowEdit(type) {
-    if (mainWindows) {
-        mainWindows.forEach(win => {
-            if (win) {
-                win.webContents.send('capture-finish');
-
-                // 取消截图（按ESC键）或者截图完成后（如保存，取消，保存至剪切板）恢复聊天窗口
-                if (isCutHideWindows) {
-                    IMwindow.show();
-                }
-
-                if (type == 'quit') {
-                    win.destroy();
-                } else if (type == 'hide') {
-                    win.hide();
-                }
-            }
-
-            // 防止快速点击截图按钮
-            IMwindow.webContents.send('has-click-cut', false);
-            
-        });
-        mainWindows = [];
-    }
-
-    // 注销退出截图快捷键
-    globalShortcut.unregister(quitKey);
-    cutFun();
-}
-
-
-
-// cutWindow
-function cutWindow(IMwindow) {
-    global.IMwindow = IMwindow;
-
-    cutFun();
-    quitCutFun();
-
-
-    // 和渲染进程通讯
-    ipcMain.on('window-edit', (event, type) => {
-        windowEdit(type);
-    });
-
-    // 点击截图按钮截图
-    ipcMain.on('cut-screen', (event, type) => {
-        console.log("YOU CLICK!!!!!");
-
-        createWindow();
-        quitCutFun();
-    });
-
-
+    
     // 设置截图快捷键
     ipcMain.on('setCaptureKey', (event, key) => {
         try {
-            globalShortcut.unregister(cutKey);
-            if (!key) {
-                return;
+            // 注销旧快捷键
+            if (cutKey) {
+                globalShortcut.unregister(cutKey);
             }
+            
             cutKey = key;
-            cutFun();
+            
+            // 注册新快捷键
+            if (key) {
+                globalShortcut.register(key, () => {
+                    // 如果设置了隐藏窗口，则先隐藏
+                    if (global.isCutHideWindows && mainWindow) {
+                        if (mainWindow.isFullScreen()) {
+                            mainWindow.setFullScreen(false);
+                        }
+                        mainWindow.hide();
+                    }
+                    
+                    // 开始截图
+                    screenshots.startCapture();
+                });
+            }
         } catch (error) {
-            console.error(error);
+            console.error('设置快捷键失败:', error);
+        }
+    });
+    
+    // 设置显示快捷键
+    ipcMain.on('setShowKey', (event, key) => {
+        try {
+            // 注销旧快捷键
+            if (showKey) {
+                globalShortcut.unregister(showKey);
+            }
+            
+            showKey = key;
+            
+            // 注册新快捷键
+            if (key) {
+                globalShortcut.register(key, () => {
+                    if (mainWindow) {
+                        if (mainWindow.isVisible()) {
+                            mainWindow.hide();
+                        } else {
+                            mainWindow.show();
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('设置显示快捷键失败:', error);
+        }
+    });
+    
+    // 设置是否隐藏窗口
+    ipcMain.on('is-hide-windows', (event, status) => {
+        global.isCutHideWindows = !!status;
+    });
+    
+    // Linux系统特殊处理
+    if (islinux) {
+        ipcMain.on('linux-clipboard', (event, dataUrl) => {
+            if (dataUrl) {
+                clipboard.writeImage(nativeImage.createFromDataURL(dataUrl));
+            }
+        });
+    }
+    
+    // 清理资源
+    mainWindow.on('closed', () => {
+        screenshots.removeAllListeners();
+    });
+    
+    // 截图直接插入到主窗口
+    ipcMain.on('insert-canvas', () => {
+        if (mainWindow) {
+            mainWindow.webContents.send('popup-tips');
         }
     });
 }
 
-module.exports = cutWindow;
+module.exports = captureController;

@@ -34,6 +34,7 @@
     "electron": "latest"
   },
   "dependencies": {
+    "electron-screenshots": "^0.5.27",
     "fe-logs": "^1.0.13"
   }
 }
