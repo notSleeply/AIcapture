@@ -1,7 +1,6 @@
 const { globalShortcut, ipcMain, clipboard, nativeImage } = require('electron');
 const Screenshots = require('electron-screenshots');
 const path = require('path');
-const fs = require('fs');
 
 const { app } = require('electron');
 
@@ -37,7 +36,7 @@ function captureController(mainWindow) {
     
     // 监听截图完成事件
     screenshots.on('ok', (e, buffer, bounds) => {
-        console.log('截图完成', bounds);
+        console.log('Screenshot Completed:', bounds);
         
         // 创建临时图片文件
         const imgPath = path.join(app.getPath('temp'), `screenshot-${Date.now()}.png`);
@@ -85,7 +84,6 @@ function captureController(mainWindow) {
     
     // 开始截图的IPC处理
     ipcMain.on('cut-screen', () => {
-        console.log('收到截图请求');
         
         // 如果设置了隐藏窗口，则先隐藏
         if (global.isCutHideWindows && mainWindow) {

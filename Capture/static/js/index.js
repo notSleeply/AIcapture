@@ -61,6 +61,9 @@ ipcRenderer.on('popup-tips', () => {
 		tipsWrap.style.display = 'none';
 	}, 2000);
 });
+ipcRenderer.on('has-click-cut', (event, status) => {
+	hasClickCut = status;
+});
 
 // 配置
 btnConfig.addEventListener('click', () => {
