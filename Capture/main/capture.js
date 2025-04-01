@@ -26,12 +26,6 @@ function captureController(mainWindow) {
     const screenshots = new Screenshots({
         // 指定快捷键（阻止重复实例化）
         singleInstanceLock: true,
-        
-        // 自定义样式
-        styles: {
-            toolbarIcon: '#409EFF',      // 工具栏图标颜色
-            windowBgColor: '#80808080',  // 背景色
-        }
     });
     
     // 监听截图完成事件
