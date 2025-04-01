@@ -1,5 +1,8 @@
-const { globalShortcut, ipcMain, clipboard, nativeImage } = require('electron');
+const { globalShortcut, ipcMain, clipboard, nativeImage, BrowserWindow, app } = require('electron');
 const Screenshots = require('electron-screenshots');
+const path = require('path');
+const fs = require('fs');
+const { format } = require('url');
 
 // 平台检测
 const islinux = process.platform === 'linux';
@@ -19,10 +22,37 @@ function captureController(mainWindow) {
     let cutKey = '';
     let showKey = '';
     
+    // 对话窗口引用
+    let dialogWindow = null;
+    
+    // 临时保存当前截图数据
+    let currentImageBuffer = null;
+    let currentImagePath = null;
+    
+    // 确保 img 目录存在 (相对于主文件夹)
+    const imgDir = path.join(__dirname, '../img');
+    if (!fs.existsSync(imgDir)) {
+        fs.mkdirSync(imgDir, { recursive: true });
+    }
+    console.log('Save imgDir:', imgDir);
+
+    // 清理旧缓存文件 (可选，如果你想保留历史截图，可以注释掉这部分)
+    try {
+        const files = fs.readdirSync(imgDir);
+        for (const file of files) {
+            // 只清理格式为 screenshot_timestamp.png 的文件
+            if (file.startsWith('screenshot_') && file.endsWith('.png')) {
+                fs.unlinkSync(path.join(imgDir, file));
+            }
+        }
+        console.log('Clear imgDir:', imgDir);
+    } catch (err) {
+        console.error('Err Clear imgDir:', err);
+    }
+    
     // 创建截图实例
     const screenshots = new Screenshots({
-        // 指定快捷键（阻止重复实例化）
-        singleInstanceLock: true,
+        singleInstanceLock: true
     });
     
     // 监听截图完成事件
@@ -32,6 +62,36 @@ function captureController(mainWindow) {
         // 将截图写入系统剪贴板
         clipboard.writeImage(nativeImage.createFromBuffer(buffer));
         
+        // 保存当前截图的Buffer
+        currentImageBuffer = buffer;
+        
+        // 生成唯一文件名并保存图片到缓存目录
+        const timestamp = new Date().getTime();
+        const filename = `screenshot_${timestamp}.jpg`;
+        currentImagePath = path.join(imgDir, filename);
+
+        try {
+            const nImage = nativeImage.createFromBuffer(buffer);
+            const jpegBuffer = nImage.toJPEG(95); // 95%质量
+
+            fs.writeFileSync(currentImagePath, jpegBuffer);
+            console.log('截图已保存到:', currentImagePath);
+        } catch (err) {
+            console.error('保存截图失败:', err);
+            // 如果转换失败，尝试保存原始格式
+            try {
+                fs.writeFileSync(currentImagePath, buffer);
+                console.log('截图已保存为原始格式:', currentImagePath);
+            } catch (fallbackErr) {
+                console.error('保存原始格式失败:', fallbackErr);
+                currentImagePath = null;
+            }
+        }
+
+        
+        // 创建并显示对话窗口
+        createDialogWindow();
+        
         // 恢复主窗口显示
         if (global.isCutHideWindows && mainWindow) {
             mainWindow.show();
@@ -39,9 +99,178 @@ function captureController(mainWindow) {
         
         // 通知渲染进程截图已完成
         mainWindow.webContents.send('popup-tips');
-        
+
         // 恢复点击状态
         mainWindow.webContents.send('has-click-cut', false);
+    });
+    
+    // 创建对话窗口
+    function createDialogWindow() {
+        // 如果已经有对话窗口，就关闭它
+        if (dialogWindow) {
+            dialogWindow.close();
+            dialogWindow = null;
+        }
+        
+        // 创建新的对话窗口
+        dialogWindow = new BrowserWindow({
+            width: 900,
+            height: 600,
+            minWidth: 800,
+            minHeight: 500,
+            title: 'AI分析',
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                preload: path.join(__dirname, '../preloader/preload.js')
+            }
+        });
+        
+        // 加载对话窗口的HTML
+        const dialogURL = format({
+            protocol: 'file',
+            slashes: true,
+            pathname: path.join(__dirname, '../renderer/dialog.html')
+        });
+        
+        dialogWindow.loadURL(dialogURL);
+        
+        // 如果是开发环境，打开开发者工具
+        if (process.env.NODE_ENV === 'development') {
+            dialogWindow.webContents.openDevTools();
+        }
+        
+        // 监听窗口关闭事件
+        dialogWindow.on('closed', () => {
+            dialogWindow = null;
+        });
+    }
+    
+    // 获取图像数据
+    ipcMain.handle('get-image-data', () => {
+        if (currentImageBuffer && currentImagePath) {
+            try {
+                // 将Buffer转换为dataURL格式用于预览
+                const nImage = nativeImage.createFromBuffer(currentImageBuffer);
+                const dataURL = nImage.toPNG ?
+                    'data:image/png;base64,' + nImage.toPNG().toString('base64') :
+                    nImage.toDataURL();
+
+                return {
+                    success: true,
+                    imageDataUrl: dataURL, // 用于预览
+                    imagePath: currentImagePath, // 本地文件路径
+                    imageSize: {
+                        width: nImage.getSize().width,
+                        height: nImage.getSize().height
+                    }
+                };
+            } catch (error) {
+                console.error('转换图像数据失败:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        return { success: false, error: '没有可用的图像数据' };
+    });
+    
+    // 读取文件并返回Buffer
+    ipcMain.handle('read-image-file', async (event, filePath) => {
+        try {
+            if (!fs.existsSync(filePath)) {
+                return { success: false, error: '文件不存在' };
+            }
+
+            const buffer = fs.readFileSync(filePath);
+
+            return {
+                success: true,
+                data: buffer, // 直接返回二进制数据
+                mimeType: 'image/png' // 指定MIME类型
+            };
+        } catch (error) {
+            console.error('读取图像文件失败:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    // 保留原有的Base64转换方法以保持兼容性
+    ipcMain.handle('read-file-as-base64', async (event, filePath) => {
+        try {
+            if (!fs.existsSync(filePath)) {
+                return { success: false, error: '文件不存在' };
+            }
+
+            const buffer = fs.readFileSync(filePath);
+            const base64Data = buffer.toString('base64');
+
+            return {
+                success: true,
+                data: base64Data
+            };
+        } catch (error) {
+            console.error('读取文件为Base64失败:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    
+    // 保存图像
+    ipcMain.handle('save-image', async (event) => {
+        try {
+            if (!currentImageBuffer) {
+                return { success: false, error: '没有可用的图像数据' };
+            }
+
+            // 获取用户下载目录
+            const { dialog } = require('electron');
+            const userPath = app.getPath('downloads');
+
+            // 创建文件名
+            const fileName = `Screenshot_${new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '')}.jpg`;
+
+            // 请求用户选择保存路径
+            const result = await dialog.showSaveDialog({
+                title: '保存截图',
+                defaultPath: path.join(userPath, fileName),
+                filters: [
+                    { name: 'JPEG图像', extensions: ['jpg', 'jpeg'] },
+                    { name: '所有文件', extensions: ['*'] }
+                ]
+            });
+
+            if (result.canceled) {
+                return { success: false };
+            }
+
+            try {
+                // 创建nativeImage对象
+                const nImage = nativeImage.createFromBuffer(currentImageBuffer);
+
+                // 将图像转换为JPEG格式的Buffer
+                const jpegBuffer = nImage.toJPEG(90); // 90%质量
+
+                // 保存JPEG图像
+                fs.writeFileSync(result.filePath, jpegBuffer);
+
+                return { success: true, filePath: result.filePath };
+            } catch (convError) {
+                console.error('转换图像格式失败:', convError);
+
+                // 如果转换失败，尝试直接保存原始Buffer
+                fs.writeFileSync(result.filePath, currentImageBuffer);
+                return { success: true, filePath: result.filePath };
+            }
+        } catch (error) {
+            console.error('保存图像失败:', error);
+            return { success: false, error: error.message };
+        }
+    });
+    
+    // 关闭对话窗口
+    ipcMain.on('close-dialog', () => {
+        if (dialogWindow) {
+            dialogWindow.close();
+        }
     });
     
     // 监听截图取消事件
@@ -72,7 +301,6 @@ function captureController(mainWindow) {
     
     // 开始截图的IPC处理
     ipcMain.on('cut-screen', () => {
-        
         // 如果设置了隐藏窗口，则先隐藏
         if (global.isCutHideWindows && mainWindow) {
             if (mainWindow.isFullScreen()) {
@@ -159,6 +387,18 @@ function captureController(mainWindow) {
     // 清理资源
     mainWindow.on('closed', () => {
         screenshots.removeAllListeners();
+        if (dialogWindow) {
+            dialogWindow.close();
+        }
+        
+        // 清理缓存文件
+        try {
+            if (currentImagePath && fs.existsSync(currentImagePath)) {
+                fs.unlinkSync(currentImagePath);
+            }
+        } catch (err) {
+            console.error('清理缓存文件失败:', err);
+        }
     });
     
     // 截图直接插入到主窗口

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI分析</title>
+    <link rel="stylesheet" href="../static/css/index.css">
+    <link rel="stylesheet" href="../static/css/dialog.css">
+</head>
+<body>
+    <div class="window">
+        <div class="window-content dialog-layout">
+            <div class="dialog-header">
+                <h3>AI 分析</h3>
+                <div class="dialog-controls">
+                    <button id="btnClose" class="btn btn-default"><span class="icon icon-cancel"></span></button>
+                </div>
+            </div>
+            <div class="dialog-body">
+                <div class="image-preview">
+                    <img id="capturedImage" alt="截图预览">
+                </div>
+                <div class="chat-container">
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="userInput" class="form-control chat-input" placeholder="询问关于图片的问题...">
+                        <button id="sendButton" class="btn btn-primary">发送</button>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-footer">
+                <button id="btnSave" class="btn btn-default">保存图片</button>
+                <button id="btnCopy" class="btn btn-default">复制到剪贴板</button>
+                <div class="status" id="statusText"></div>
+            </div>
+        </div>
+    </div>
+    <script src="../static/js/dialog.js"></script>
+</body>
+</html>

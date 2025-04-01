@@ -5,6 +5,20 @@ contextBridge.exposeInMainWorld('myAPI', {
     version: process.version,
     cutScreen: () => {
         ipcRenderer.send('cut-screen');
+    },
+    // 对话窗口相关API
+    getImageData: async () => {
+        return await ipcRenderer.invoke('get-image-data');
+    },
+    saveImage: async (base64Data) => {
+        return await ipcRenderer.invoke('save-image', base64Data);
+    },
+    closeDialog: () => {
+        ipcRenderer.send('close-dialog');
+    },
+    // 新增：读取文件为Base64
+    readFileAsBase64: async (filePath) => {
+        return await ipcRenderer.invoke('read-file-as-base64', filePath);
     }
 });
 
@@ -26,7 +40,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
             'launch', 
             'is-hide-windows',
             'insert-canvas',
-            'linux-clipboard'
+            'linux-clipboard',
+            'close-dialog'
         ];
         if (validChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
