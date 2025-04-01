@@ -1,8 +1,5 @@
 const { globalShortcut, ipcMain, clipboard, nativeImage } = require('electron');
 const Screenshots = require('electron-screenshots');
-const path = require('path');
-
-const { app } = require('electron');
 
 // 平台检测
 const islinux = process.platform === 'linux';
@@ -31,9 +28,6 @@ function captureController(mainWindow) {
     // 监听截图完成事件
     screenshots.on('ok', (e, buffer, bounds) => {
         console.log('Screenshot Completed:', bounds);
-        
-        // 创建临时图片文件
-        const imgPath = path.join(app.getPath('temp'), `screenshot-${Date.now()}.png`);
         
         // 将截图写入系统剪贴板
         clipboard.writeImage(nativeImage.createFromBuffer(buffer));
