@@ -1,7 +1,10 @@
 /backend/__pycache__/
 /backend/__pycache__/*
-/client/node_modules/
-/Capture/node_modules/
-/Capture/dist/
-.vscode/
 /Capture/img/
+.vscode/
+*/node_modules
+*/dist/
+*/out
+*.DS_Store
+*.eslintcache
+*.log*
