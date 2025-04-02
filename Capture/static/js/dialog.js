@@ -124,7 +124,7 @@ function addLoadingIndicator() {
 async function analyzeImage(prompt) {
     try {
         // 添加初始状态消息
-        addMessage("正在使用火山引擎视觉大模型分析图像...", "ai");
+        addMessage("正在分析图像...", "ai");
         
         // 如果没有图片路径，则报错
         if (!imagePath) {

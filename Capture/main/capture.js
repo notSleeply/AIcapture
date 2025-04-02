@@ -22,6 +22,64 @@ function captureController(mainWindow) {
     let cutKey = '';
     let showKey = '';
     
+    // 获取本地存储的快捷键，如果没有，则设置默认值
+    try {
+        // 尝试从本地存储读取自定义快捷键
+        if (global.localStorage && global.localStorage.captureKey) {
+            cutKey = global.localStorage.captureKey;
+        } else {
+            // 设置默认快捷键为 Alt+S
+            cutKey = 'Alt + S';
+        }
+        
+        if (global.localStorage && global.localStorage.showKey) {
+            showKey = global.localStorage.showKey;
+        }
+    } catch (err) {
+        console.log('读取快捷键设置失败，将使用默认设置:', err);
+        // 设置默认快捷键为 Alt+S
+        cutKey = 'Alt + S';
+    }
+    
+    // 自动注册截图快捷键
+    if (cutKey) {
+        try {
+            globalShortcut.register(cutKey, () => {
+                // 如果设置了隐藏窗口，则先隐藏
+                if (global.isCutHideWindows && mainWindow) {
+                    if (mainWindow.isFullScreen()) {
+                        mainWindow.setFullScreen(false);
+                    }
+                    mainWindow.hide();
+                }
+                
+                // 开始截图
+                screenshots.startCapture();
+            });
+            console.log('已注册截图快捷键:', cutKey);
+        } catch (error) {
+            console.error('注册截图快捷键失败:', error);
+        }
+    }
+    
+    // 自动注册显示快捷键
+    if (showKey) {
+        try {
+            globalShortcut.register(showKey, () => {
+                if (mainWindow) {
+                    if (mainWindow.isVisible()) {
+                        mainWindow.hide();
+                    } else {
+                        mainWindow.show();
+                    }
+                }
+            });
+            console.log('已注册显示快捷键:', showKey);
+        } catch (error) {
+            console.error('注册显示快捷键失败:', error);
+        }
+    }
+    
     // 对话窗口引用
     let dialogWindow = null;
     

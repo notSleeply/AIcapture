@@ -26,8 +26,30 @@ const tipsContent = $('tipsContent');
 console.log('测试测试myAPI::', myAPI.version);
 
 // 初始化状态变量
-let captureKey = localStorage.captureKey || '';
+let captureKey = localStorage.captureKey || 'Alt + S';  // 默认为 Alt+S
 let showKey = localStorage.showKey || '';
+
+// 保存默认快捷键到localStorage
+if (!localStorage.captureKey) {
+    localStorage.captureKey = captureKey;
+    // 发送到主进程
+    ipcRenderer.send('setCaptureKey', captureKey);
+}
+
+// 更新UI显示快捷键
+function updateShortcutDisplay() {
+    if (captureKeyBox) {
+        captureKeyBox.innerHTML = captureKey || '无截图快捷键';
+    }
+    if (showKeyBox) {
+        showKeyBox.innerHTML = showKey || '无显示快捷键';
+    }
+}
+
+// 页面加载完成后显示快捷键
+document.addEventListener('DOMContentLoaded', () => {
+    updateShortcutDisplay();
+});
 
 // 移除active样式
 function removeActive() {
@@ -181,8 +203,11 @@ function resetKey() {
 	captureKeyBox.style.color = '#333';
 	showKeyBox.style.background = 'transparent';
 	showKeyBox.style.color = '#333';
-	captureKeyBox.innerHTML = captureKey ? captureKey : '无截图快捷键';
-	showKeyBox.innerHTML = showKey ? showKey : '无显示快捷键';
+
+	// 使用存储的快捷键或默认值
+	const displayCaptureKey = captureKey || 'Alt + S';
+	captureKeyBox.innerHTML = displayCaptureKey;
+	showKeyBox.innerHTML = showKey || '无显示快捷键';
 }
 
 // 添加关于按钮事件
