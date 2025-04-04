@@ -6,11 +6,21 @@
 - 适配性好：先全部接一遍，在单独接一遍
 - 自定义高：用户可自行配置模型（需要vip）
 
-
-
-
-
 # 一些思想
 
 - 前端先抄electron-capture
 - 后端其实只要一个豆包的视觉模型就可以了。
+
+### 前端安装环境
+
+- cnpm i
+
+- .npmrc  配置npm安装环境
+
+### 后端安装环境
+
+- conda env list 查看conda环境
+
+- conda activate myenv 启动
+
+- python main.py

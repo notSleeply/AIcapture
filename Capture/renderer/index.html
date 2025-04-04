@@ -16,7 +16,7 @@
 						<div class="nav-group-item-noactive">
 							<button class="btn btn-large btn-primary" id="btnCapture">开始截图</button>
 						</div>
-						<div class="nav-group-item" id="btnConfig">
+						<div class="nav-group-item active" id="btnConfig">
 							<span class="icon icon-cog"></span>
 							配 置
 						</div>
@@ -24,43 +24,27 @@
 							<span class="icon icon-keyboard"></span>
 							快捷键
 						</div>
-						<div class="nav-group-item" id="btnAbout">
-							<span class="icon icon-info-circled"></span>
-							关 于
-						</div>
 					</nav>
 				</div>
 				<div class="pane">
-					<div class="config" id="configBox">
+					<div class="content-panel config-panel visible" id="configBox">
+						<div class="panel-title">配置选项</div>
 						<div class="box-item">
 							<input type="checkbox" id="hideInput">
-							<label for="hideInput" id="hideLabel">截图时是否隐藏当前窗口</label>
+							<label for="hideInput" id="hideLabel">截图时隐藏当前窗口</label>
 						</div>
 						<div class="box-item">
 							<input type="checkbox" id="toolInput">
-							<label for="toolInput" id="toolLabel">是否保存截图各工具的大小和颜色选择</label>
-						</div>
-						<div class="box-item box-item-disabled">
-							<input disabled type="checkbox" id="miniInput" checked>
-							<label for="miniInput" id="miniLabel">点击关闭按钮最小化窗口</label>
-						</div>
-						<div class="box-item box-item-disabled">
-							<input disabled type="checkbox" id="clipboardInput" checked>
-							<label for="clipboardInput" id="clipboardLabel">总是将截图复制到"剪切板"</label>
+							<label for="toolInput" id="toolLabel">截图时开启AI分析</label>
 						</div>
 					</div>
-					<div class="keyboard" id="keyboardBox">
+					<div class="content-panel keyboard-panel" id="keyboardBox">
+						<div class="panel-title">快捷键设置</div>
 						<div class="box-item">
 							<label>截图快捷键：</label>
 							<p class="keyboard" id="captureKeyBox"></p>
 							<span class="icon icon-pencil" id="btnSetCaptureKey"></span>
 							<span class="icon icon-trash" id="btnDelCaptureKey"></span>
-						</div>
-						<div class="box-item">
-							<label>显示快捷键：</label>
-							<p class="keyboard" id="showKeyBox"></p>
-							<span class="icon icon-pencil" id="btnSetShowKey"></span>
-							<span class="icon icon-trash" id="btnDelShowKey"></span>
 						</div>
 						<div class="box-item box-item-disabled">
 							<label>退出截图键：</label>
@@ -68,28 +52,12 @@
 							<span class="icon icon-pencil"></span>
 							<span class="icon icon-trash"></span>
 						</div>
-						<div class="box-item box-item-disabled">
-							<label>隐藏快捷键：</label>
-							<p class="keyboard" id="hideKeyBox"></p>
-							<span class="icon icon-pencil"></span>
-							<span class="icon icon-trash"></span>
-						</div>
-						<div class="box-item box-item-disabled">
-							<label>退出快捷键：</label>
-							<p class="keyboard" id="quitKeyBox"></p>
-							<span class="icon icon-pencil"></span>
-							<span class="icon icon-trash"></span>
-						</div>
 					</div>
 				</div>
 			</div>
-			<div class="tips-wrap" id="tipsWrap">
-				<span class="icon icon-check"></span>
-				<p id="tipsContent"></p>
-			</div>
 		</div>
 	</div>
-	<script src="../static/js/index.js"></script>
+	<script type="module" src="../static/js/index.js"></script>
 </body>
 
 </html>

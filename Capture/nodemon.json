@@ -3,7 +3,7 @@
         "node_modules",
         "dist"
     ],
-    "ext": "js,json,ts",
+    "ext": "js,json,ts,html,css,vue,scss,less",
     "watch":["*.*"],
     "restartable": "reboot"
 }

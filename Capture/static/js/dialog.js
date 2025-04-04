@@ -145,6 +145,7 @@ async function analyzeImage(prompt) {
         // 准备表单数据
         const formData = new FormData();
         formData.append('prompt', prompt);
+        
         // 使用名为file的参数，与后端API一致
         formData.append('file', imageBlob, 'screenshot.jpg');
         

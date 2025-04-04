@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
             'is-hide-windows',
             'insert-canvas',
             'linux-clipboard',
+            'trigger-capture',
             'close-dialog'
         ];
         if (validChannels.includes(channel)) {

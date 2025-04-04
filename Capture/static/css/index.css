@@ -712,7 +712,8 @@ img {
 }
 .nav-group-item:active,
 .nav-group-item.active {
-  background-color: #dcdfe1;
+  background-color: #116cd6;
+  color: #fff;
 }
 .nav-group-item .icon {
   color: #737475;
@@ -1786,3 +1787,24 @@ td:last-child {
 .tips-wrap p {
   margin: 0;
 }
+
+/* 面板基本样式 */
+.content-panel {
+  display: none;
+  padding: 15px;
+  height: 100%;
+}
+
+.content-panel.visible {
+  display: block;
+}
+
+.panel-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
