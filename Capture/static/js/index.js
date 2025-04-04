@@ -1,4 +1,5 @@
 import { parseShortcut } from "./tools/parseShortcut.js";
+import { initSetting } from "./tools/initSetting.js";
 
 function $(id) {
   return document.getElementById(id);
@@ -32,6 +33,12 @@ console.log("测试测试myAPI::", myAPI.version);
 // 初始化状态变量
 let captureKey = localStorage.captureKey || "Alt + S";
 let showKey = localStorage.showKey || "无显示快捷键";
+let shortKey = "";
+let split = "";
+let hasClickCut = false;
+let keyKind = 0;
+let hideWindows = +localStorage.hideInput;
+let enableAIAnalysis = +localStorage.toolInput || 1;
 
 // 保存默认快捷键到localStorage
 if (!localStorage.captureKey) {
@@ -39,7 +46,33 @@ if (!localStorage.captureKey) {
   // 发送到主进程
   ipcRenderer.send("setCaptureKey", captureKey);
 }
+// 页面加载完成后显示快捷键
+document.addEventListener("DOMContentLoaded", () => {
+  updateShortcutDisplay();
+  // 初始化隐藏窗口设置
+  initSetting({
+    inputElement: hideInput,
+    labelElement: hideLabel,
+    storageName: "hideInput",
+    ipcEventName: "is-hide-windows",
+    defaultValue: 0,
+    onUpdate: (value) => {
+      hideWindows = value;
+    },
+  });
 
+  // 初始化AI分析工具设置
+  initSetting({
+    inputElement: toolInput,
+    labelElement: toolLabel,
+    storageName: "toolInput",
+    ipcEventName: "set-ai-analysis",
+    defaultValue: 1,
+    onUpdate: (value) => {
+      enableAIAnalysis = value;
+    },
+  });
+});
 // 更新UI显示快捷键
 function updateShortcutDisplay() {
   if (captureKeyBox) {
@@ -49,13 +82,6 @@ function updateShortcutDisplay() {
     showKeyBox.innerHTML = showKey;
   }
 }
-
-// 页面加载完成后显示快捷键
-document.addEventListener("DOMContentLoaded", () => {
-  updateShortcutDisplay();
-  initHideWindowSetting();
-});
-
 // 添加面板切换逻辑
 document.addEventListener("DOMContentLoaded", function () {
   const btnConfig = document.getElementById("btnConfig");
@@ -99,9 +125,7 @@ function hideBox() {
   aboutBox.style.display = "none";
 }
 
-// 截图
-let hasClickCut = false;
-let hideWindows = +localStorage.hideInput;
+// 截图按钮事件
 btnCapture.addEventListener(
   "click",
   () => {
@@ -151,71 +175,8 @@ launchLabel.addEventListener(
   },
   false
 );
-// 初始化隐藏窗口设置
-function initHideWindowSetting() {
-  // 从localStorage读取设置，默认为0(不隐藏)
-  const hideValue = localStorage.hideInput || "0";
-
-  // 更新全局状态变量
-  hideWindows = +hideValue;
-
-  // 根据保存的值设置复选框状态
-  if (+hideValue === 1) {
-    hideInput.setAttribute("checked", true);
-  } else {
-    hideInput.removeAttribute("checked");
-  }
-
-  // 初始时通知主进程当前设置
-  ipcRenderer.send("is-hide-windows", hideWindows);
-
-  // 为复选框和标签添加统一的事件处理
-  hideInput.addEventListener("click", toggleHideWindows);
-  hideLabel.addEventListener("click", toggleHideWindows);
-}
-
-// 切换隐藏窗口设置
-function toggleHideWindows(event) {
-  // 当点击的是label时，阻止默认行为以避免重复触发
-  if (event.target === hideLabel) {
-    event.preventDefault();
-  }
-
-  // 切换复选框状态
-  const newState = !hideInput.hasAttribute("checked");
-
-  if (newState) {
-    hideInput.setAttribute("checked", true);
-    localStorage.hideInput = "1";
-  } else {
-    hideInput.removeAttribute("checked");
-    localStorage.hideInput = "0";
-  }
-
-  // 更新全局变量
-  hideWindows = +localStorage.hideInput;
-
-  // 通知主进程
-  ipcRenderer.send("is-hide-windows", hideWindows);
-
-  // 显示操作反馈
-  showSettingFeedback(
-    hideWindows ? "已开启截图隐藏窗口" : "已关闭截图隐藏窗口"
-  );
-}
-
-// 显示设置更改反馈
-function showSettingFeedback(message) {
-  tipsWrap.style.display = "block";
-  tipsContent.innerHTML = message;
-  setTimeout(() => {
-    tipsWrap.style.display = "none";
-  }, 2000);
-}
 
 // 快捷键
-// 1代表截图快捷键，2代表显示快捷键
-let keyKind = 0;
 btnKeyboard.addEventListener(
   "click",
   () => {
@@ -313,10 +274,6 @@ btnAbout.addEventListener(
   },
   false
 );
-
-// 输入新的快捷键
-let shortKey = "";
-let split = "";
 
 // 监听键盘事件
 document.addEventListener(
