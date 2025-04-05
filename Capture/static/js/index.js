@@ -35,7 +35,6 @@ if (!localStorage.captureKey) {
   // 发送到主进程
   ipcRenderer.send("setCaptureKey", captureKey);
 }
-
 // 页面加载完成后显示快捷键
 document.addEventListener("DOMContentLoaded", () => {
   updateShortcutDisplay();
@@ -64,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   setupPanelSwitching();
 });
-
 // 更新UI显示快捷键
 function updateShortcutDisplay() {
   if (captureKeyBox) {
