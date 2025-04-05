@@ -23,14 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.imageDataUrl) {
                 // 使用DataURL直接设置图片源用于预览
                 capturedImage.src = data.imageDataUrl;
-                console.log('图片已加载到预览区域');
                 
                 // 保存图片路径
                 imagePath = data.imagePath;
-                console.log('图片路径:', imagePath);
                 
-                // 显示连接状态
-                showStatus("正在连接到火山引擎视觉模型...");
                 
                 // 自动发送第一个分析请求
                 setTimeout(() => {
@@ -38,15 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 500);
             } else {
                 console.error('未收到有效的图片数据URL');
-                showStatus("图片加载失败");
             }
         } else {
             console.error('获取图片数据失败');
-            showStatus("图片加载失败");
         }
     }).catch(err => {
         console.error('获取图片数据时出错:', err);
-        showStatus("图片加载出错");
     });
     
     // 事件监听器
@@ -170,8 +163,7 @@ async function analyzeImage(prompt) {
         // 显示AI回复
         addMessage(result.data, 'ai');
         
-        // 提示用户可以继续提问
-        showStatus("可以继续询问关于图片的问题");
+
         
     } catch (error) {
         console.error('分析图像时出错:', error);
@@ -182,7 +174,6 @@ async function analyzeImage(prompt) {
         }
         
         addMessage(`图像分析失败: ${error.message}。请重试或检查后端服务是否正常运行。`, 'ai');
-        showStatus("分析失败，请重试");
     }
 }
 
@@ -262,34 +253,5 @@ async function sendFollowupQuestion(question) {
         }
         
         addMessage(errorMessage, 'ai');
-        showStatus("请求失败");
-    }
-}
-
-// 显示状态消息
-function showStatus(message) {
-    statusText.textContent = message;
-    setTimeout(() => {
-        statusText.textContent = '';
-    }, 3000);
-}
-
-// 添加重新分析按钮
-function addReanalyzeButton() {
-    if (!document.getElementById('btnReanalyze')) {
-        const btnReanalyze = document.createElement('button');
-        btnReanalyze.id = 'btnReanalyze';
-        btnReanalyze.className = 'btn btn-primary';
-        btnReanalyze.textContent = '重新分析图像';
-        btnReanalyze.style.marginRight = '10px';
-        
-        btnReanalyze.addEventListener('click', () => {
-            sessionId = null; // 重置会话
-            analyzeImage("请重新分析这张图片，详细描述你看到了什么");
-        });
-        
-        // 添加到对话框底部
-        const dialogFooter = document.querySelector('.dialog-footer');
-        dialogFooter.prepend(btnReanalyze);
     }
 }
