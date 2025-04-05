@@ -18,13 +18,14 @@ const startCapture = require("./tools/startCapture");
  * @param {string} imgDir - 图片保存目录
  */
 function captureWin(mainWindow, imgDir) {
-  global.IMwindow = mainWindow;     // 保存主窗口引用
-  global.isCutHideWindows = false;  // 默认隐藏设置
-  let dialogWindow = null;          // 对话窗口引用
-  let currentImageBuffer = null;    // 临时保存当前截图数据
-  let currentImagePath = null;      // 临时保存当前截图路径
-  let cutKey = "";                  // 初始化快捷键
-  let showKey = "";                 // 初始化显示设置 
+  global.IMwindow = mainWindow; // 保存主窗口引用
+  global.isCutHideWindows = false; // 默认隐藏设置
+  global.enableAIAnalysis = true; // 默认启用AI分析
+  let dialogWindow = null; // 对话窗口引用
+  let currentImageBuffer = null; // 临时保存当前截图数据
+  let currentImagePath = null; // 临时保存当前截图路径
+  let cutKey = ""; // 初始化快捷键
+  let showKey = ""; // 初始化显示设置
 
   // 获取本地存储的快捷键，如果没有，则设置默认值
   try {
@@ -81,8 +82,6 @@ function captureWin(mainWindow, imgDir) {
 
   // 监听截图完成事件
   screenshots.on("ok", (e, buffer, bounds) => {
-    console.log("Screenshot Completed:", bounds);
-
     // 将截图写入系统剪贴板
     clipboard.writeImage(nativeImage.createFromBuffer(buffer));
 
@@ -99,21 +98,21 @@ function captureWin(mainWindow, imgDir) {
       const jpegBuffer = nImage.toJPEG(95); // 95%质量
 
       fs.writeFileSync(currentImagePath, jpegBuffer);
-      console.log("截图已保存到:", currentImagePath);
     } catch (err) {
-      console.error("保存截图失败:", err);
+      console.error("Save err dir path:", err);
       // 如果转换失败，尝试保存原始格式
       try {
         fs.writeFileSync(currentImagePath, buffer);
-        console.log("截图已保存为原始格式:", currentImagePath);
       } catch (fallbackErr) {
-        console.error("保存原始格式失败:", fallbackErr);
+        console.error("Save err format:", fallbackErr);
         currentImagePath = null;
       }
     }
     mainWindow.setSkipTaskbar(false);
     // 创建并显示对话窗口
-    createDialogWindow();
+    if (global.enableAIAnalysis) {
+      createDialogWindow();
+    }
 
     // 通知渲染进程截图已完成
     mainWindow.webContents.send("popup-tips");
@@ -291,6 +290,10 @@ function captureWin(mainWindow, imgDir) {
     if (dialogWindow) {
       dialogWindow.close();
     }
+  });
+  // AI 分析设置处理
+  ipcMain.on("set-ai-analysis", (event, status) => {
+    global.enableAIAnalysis = !!status;
   });
 
   // 监听截图取消事件

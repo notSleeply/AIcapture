@@ -42,6 +42,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
             'insert-canvas',
             'linux-clipboard',
             'trigger-capture',
+            "set-ai-analysis",
             'close-dialog'
         ];
         if (validChannels.includes(channel)) {
