@@ -11,7 +11,6 @@ const btnClose = $('btnClose');
 const statusText = $('statusText');
 
 // 状态变量
-let imageData = null;
 let imagePath = null;
 let sessionId = null;
 const API_URL = 'http://localhost:8080';
