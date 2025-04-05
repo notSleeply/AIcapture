@@ -14,6 +14,8 @@ let imageData = null;
 let imagePath = null;
 let sessionId = null;
 const API_URL = 'http://localhost:8080';
+const Presets =
+  "请对图片内容进行详尽分析。若图片是代码界面，详细解读代码逻辑，包括变量、函数、语句功能等，框选部分（若有）需逐行剖析；若是图表，阐述图表类型、数据趋势、关键数据点及代表意义；若是实物图片，说明物品名称、用途、特性等相关信息；若是场景图，描述场景构成元素、氛围、可能的地点或事件；若存在箭头指示，明确指出箭头指向的对象及关联信息；若有框选区域，精准说明框选部分的具体内容及在整体中的作用，其他部分用一句概括一下就行，主要介绍框选部分。";
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 自动发送第一个分析请求
                 setTimeout(() => {
-                    analyzeImage("请分析这张图片内容，描述你看到了什么");
+                    analyzeImage(Presets);
                 }, 500);
             } else {
                 console.error('未收到有效的图片数据URL');
