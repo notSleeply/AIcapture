@@ -136,6 +136,8 @@ function captureWin(mainWindow, imgDir) {
       minWidth: 800,
       minHeight: 500,
       title: "AI分析",
+      autoHideMenuBar: true,
+      frame: false,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,

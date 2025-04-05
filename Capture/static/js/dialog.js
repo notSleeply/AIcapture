@@ -6,8 +6,6 @@ const capturedImage = $('capturedImage');
 const chatMessages = $('chatMessages');
 const userInput = $('userInput');
 const sendButton = $('sendButton');
-const btnSave = $('btnSave');
-const btnCopy = $('btnCopy');
 const btnClose = $('btnClose');
 const statusText = $('statusText');
 
@@ -59,13 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     sendButton.addEventListener('click', handleUserInput);
-    
-    btnSave.addEventListener('click', saveImage);
-    
-    btnCopy.addEventListener('click', () => {
-        // 图片已经在剪贴板中，只需提示用户
-        showStatus("图片已复制到剪贴板");
-    });
     
     btnClose.addEventListener('click', () => {
         window.myAPI.closeDialog();
@@ -275,22 +266,6 @@ async function sendFollowupQuestion(question) {
     }
 }
 
-// 保存图像
-function saveImage() {
-    window.myAPI.saveImage()
-        .then(result => {
-            if (result.success) {
-                showStatus(`图片已保存至: ${result.filePath}`);
-            } else {
-                showStatus('保存图片失败');
-            }
-        })
-        .catch(err => {
-            console.error('保存图片时出错:', err);
-            showStatus('保存图片失败');
-        });
-}
-
 // 显示状态消息
 function showStatus(message) {
     statusText.textContent = message;
@@ -315,6 +290,6 @@ function addReanalyzeButton() {
         
         // 添加到对话框底部
         const dialogFooter = document.querySelector('.dialog-footer');
-        dialogFooter.insertBefore(btnReanalyze, btnSave);
+        dialogFooter.prepend(btnReanalyze);
     }
 }

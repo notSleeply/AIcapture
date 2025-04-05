@@ -35,6 +35,7 @@ let windowOption = {
   height: 300,
   minHeight: 300,
   useContentSize: true,
+  autoHideMenuBar: true,
   center: true,
   title: "截图工具",
   webPreferences: {
