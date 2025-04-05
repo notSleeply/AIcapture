@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 保存图片路径
                 imagePath = data.imagePath;
                 
-                
                 // 自动发送第一个分析请求
                 setTimeout(() => {
                     analyzeImage(Presets);
