@@ -139,6 +139,7 @@ function captureWin(mainWindow, imgDir) {
       autoHideMenuBar: true,
       frame: false,
       webPreferences: {
+        devTools: true,
         nodeIntegration: false,
         contextIsolation: true,
         preload: path.join(__dirname, "../preloader/preload.js"),

@@ -110,3 +110,58 @@
     color: #666;
     font-size: 12px;
 }
+
+.code-block {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    padding: 10px;
+    margin: 8px 0;
+    overflow-x: auto;
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: pre;
+}
+
+/* 行内代码样式 */
+.inline-code {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    font-size: 90%;
+}
+
+/* 列表样式 */
+.ai-message ul, .ai-message ol {
+    margin: 8px 0 8px 20px;
+    padding-left: 15px;
+}
+
+.ai-message li {
+    margin-bottom: 5px;
+}
+
+/* 段落间距 */
+.ai-message p {
+    margin: 8px 0;
+}
+
+/* 强调文本样式 */
+.ai-message strong {
+    font-weight: bold;
+}
+
+.ai-message em {
+    font-style: italic;
+}
+
+/* 重新分析按钮 */
+#reanalyzeButton {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+#reanalyzeButton:hover {
+    opacity: 1;
+}

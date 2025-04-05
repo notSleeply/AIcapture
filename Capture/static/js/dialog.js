@@ -1,3 +1,4 @@
+import { formatAIMessage } from "./tools/formatAIMessage.js";
 // 辅助函数
 function $(id) { return document.getElementById(id); }
 
@@ -55,9 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClose.addEventListener('click', () => {
         window.myAPI.closeDialog();
     });
-    
-    // 在初始化完成后添加重新分析按钮
-    setTimeout(addReanalyzeButton, 1000);
 });
 
 // 处理用户输入
@@ -83,26 +81,15 @@ function handleUserInput() {
 function addMessage(text, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}-message`;
-    messageDiv.textContent = text;
+   if (sender === "ai") {
+     messageDiv.innerHTML = formatAIMessage(text);
+   } else {
+     messageDiv.textContent = text;
+   }
     chatMessages.appendChild(messageDiv);
     
     // 滚动到底部
     chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// 添加加载指示器
-function addLoadingIndicator() {
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'message ai-message';
-    loadingDiv.id = 'loadingIndicator';
-    
-    const indicator = document.createElement('div');
-    indicator.className = 'loading-indicator';
-    loadingDiv.appendChild(indicator);
-    
-    chatMessages.appendChild(loadingDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return loadingDiv;
 }
 
 // 分析图像 - 使用火山引擎视觉模型
