@@ -24,6 +24,10 @@
 							<span class="icon icon-keyboard"></span>
 							快捷键
 						</div>
+						<div class="nav-group-item" id="btnAbout">
+							<span class="icon icon-info-circled"></span>
+							关 于
+						</div>
 					</nav>
 				</div>
 				<div class="pane">
@@ -36,6 +40,11 @@
 						<div class="box-item">
 							<input type="checkbox" id="toolInput">
 							<label for="toolInput" id="toolLabel">截图时开启AI分析</label>
+						</div>
+						<div class="box-item">
+							<label for="apiKeyInput" class="api-key-label" style="width: 120px;">API Key：</label>
+							<input type="text" id="apiKeyInput" class="form-control api-key-input" placeholder="输入您的API Key">
+							<button class="btn btn-primary" id="btnSaveConfig">保存</button>
 						</div>
 					</div>
 					<div class="content-panel keyboard-panel" id="keyboardBox">
@@ -51,6 +60,19 @@
 							<p class="keyboard">ESC</p>
 							<span class="icon icon-pencil"></span>
 							<span class="icon icon-trash"></span>
+						</div>
+					</div>
+					<div class="content-panel about-panel" id="aboutBox">
+						<div class="panel-title">关于</div>
+						<div class="about-content">
+							<h3>AI截图工具</h3>
+							<p>版本：1.0.0</p>
+							<p>一款集成AI能力的智能截图工具，可以对截图内容进行智能分析。</p>
+							<p>© 2025 梦溪比特 团队</p>
+							<div class="about-links">
+								<a href="#" id="btnCheckUpdate">检查更新</a>
+								<a href="#" id="btnReportIssue">问题反馈</a>
+							</div>
 						</div>
 					</div>
 				</div>

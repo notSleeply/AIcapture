@@ -1788,7 +1788,6 @@ td:last-child {
   margin: 0;
 }
 
-/* 面板基本样式 */
 .content-panel {
   display: none;
   padding: 15px;
@@ -1807,4 +1806,33 @@ td:last-child {
   padding-bottom: 10px;
   border-bottom: 1px solid #ddd;
 }
+.about-panel {
+  display: none;
+}
 
+.about-panel.visible {
+  display: block;
+}
+
+.about-content {
+  padding: 20px;
+  text-align: center;
+}
+
+.about-content h3 {
+  margin-top: 0;
+}
+
+.about-links {
+  margin-top: 20px;
+}
+
+.about-links a {
+  margin: 0 10px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.about-links a:hover {
+  text-decoration: underline;
+}

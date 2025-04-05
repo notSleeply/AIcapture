@@ -1,20 +1,13 @@
 import { parseShortcut } from "./tools/parseShortcut.js";
 import { initSetting } from "./tools/initSetting.js";
+import { setupPanelSwitching } from "./tools/setupPanelSwitching.js";
 
 function $(id) {
   return document.getElementById(id);
 }
 const btnCapture = $("btnCapture");
-const btnConfig = $("btnConfig");
-const btnKeyboard = $("btnKeyboard");
-const btnAbout = $("btnAbout");
-const configBox = $("configBox");
-const keyboardBox = $("keyboardBox");
-const aboutBox = $("aboutBox");
 const captureKeyBox = $("captureKeyBox");
-const hideKeyBox = $("hideKeyBox");
 const showKeyBox = $("showKeyBox");
-const quitKeyBox = $("quitKeyBox");
 const btnSetCaptureKey = $("btnSetCaptureKey");
 const btnDelCaptureKey = $("btnDelCaptureKey");
 const btnSetShowKey = $("btnSetShowKey");
@@ -73,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
       enableAIAnalysis = value;
     },
   });
+  setupPanelSwitching();
 });
 
 // 更新UI显示快捷键
@@ -84,49 +78,6 @@ function updateShortcutDisplay() {
     showKeyBox.innerHTML = showKey;
   }
 }
-// 添加面板切换逻辑
-document.addEventListener("DOMContentLoaded", function () {
-  const btnConfig = document.getElementById("btnConfig");
-  const btnKeyboard = document.getElementById("btnKeyboard");
-  const configBox = document.getElementById("configBox");
-  const keyboardBox = document.getElementById("keyboardBox");
-
-  // 配置按钮点击事件
-  btnConfig.addEventListener("click", function () {
-    btnConfig.classList.add("active");
-    btnKeyboard.classList.remove("active");
-    configBox.classList.add("visible");
-    keyboardBox.classList.remove("visible");
-  });
-
-  // 快捷键按钮点击事件
-  btnKeyboard.addEventListener("click", function () {
-    btnKeyboard.classList.add("active");
-    btnConfig.classList.remove("active");
-    keyboardBox.classList.add("visible");
-    configBox.classList.remove("visible");
-  });
-
-  // 默认显示配置面板
-  btnConfig.classList.add("active");
-  configBox.classList.add("visible");
-  keyboardBox.classList.remove("visible");
-});
-
-// 移除active样式
-function removeActive() {
-  btnConfig.classList.remove("active");
-  btnKeyboard.classList.remove("active");
-  btnAbout.classList.remove("active");
-}
-
-// 隐藏所有窗口
-function hideBox() {
-  configBox.style.display = "none";
-  keyboardBox.style.display = "none";
-  aboutBox.style.display = "none";
-}
-
 // 截图按钮事件
 btnCapture.addEventListener(
   "click",
@@ -153,18 +104,6 @@ ipcRenderer.on("has-click-cut", (event, status) => {
   hasClickCut = status;
 });
 
-// 配置
-btnConfig.addEventListener(
-  "click",
-  () => {
-    resetKey();
-    removeActive();
-    hideBox();
-    btnConfig.classList.add("active");
-    configBox.style.display = "block";
-  },
-  false
-);
 launchLabel.addEventListener(
   "click",
   () => {
@@ -177,19 +116,6 @@ launchLabel.addEventListener(
   },
   false
 );
-
-// 快捷键
-btnKeyboard.addEventListener(
-  "click",
-  () => {
-    removeActive();
-    hideBox();
-    btnKeyboard.classList.add("active");
-    keyboardBox.style.display = "block";
-  },
-  false
-);
-
 // 截图快捷键
 btnSetCaptureKey.addEventListener(
   "click",
@@ -219,7 +145,6 @@ btnDelCaptureKey.addEventListener(
   },
   false
 );
-
 // 显示快捷键
 btnSetShowKey.addEventListener(
   "click",
@@ -249,34 +174,6 @@ btnDelShowKey.addEventListener(
   },
   false
 );
-
-// 重置快捷键
-function resetKey() {
-  keyKind = 0;
-  captureKeyBox.style.background = "transparent";
-  captureKeyBox.style.color = "#333";
-  showKeyBox.style.background = "transparent";
-  showKeyBox.style.color = "#333";
-
-  // 使用存储的快捷键或默认值
-  const displayCaptureKey = captureKey || "Alt + S";
-  captureKeyBox.innerHTML = displayCaptureKey;
-  showKeyBox.innerHTML = showKey || "无显示快捷键";
-}
-
-// 添加关于按钮事件
-btnAbout.addEventListener(
-  "click",
-  () => {
-    resetKey();
-    removeActive();
-    hideBox();
-    btnAbout.classList.add("active");
-    aboutBox.style.display = "block";
-  },
-  false
-);
-
 // 监听键盘事件
 document.addEventListener(
   "keydown",

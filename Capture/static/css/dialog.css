@@ -165,3 +165,12 @@
 #reanalyzeButton:hover {
     opacity: 1;
 }
+
+.api-key-label {
+  display: inline-block;
+}
+
+.api-key-input {
+  display: inline-block;
+  width: 300px;
+}
