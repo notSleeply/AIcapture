@@ -10,10 +10,6 @@ const captureKeyBox = $("captureKeyBox");
 const showKeyBox = $("showKeyBox");
 const btnSetCaptureKey = $("btnSetCaptureKey");
 const btnDelCaptureKey = $("btnDelCaptureKey");
-const btnSetShowKey = $("btnSetShowKey");
-const btnDelShowKey = $("btnDelShowKey");
-const launchInput = $("launchInput");
-const launchLabel = $("launchLabel");
 const hideInput = $("hideInput");
 const hideLabel = $("hideLabel");
 const toolInput = $("toolInput");
@@ -103,19 +99,6 @@ ipcRenderer.on("popup-tips", () => {
 ipcRenderer.on("has-click-cut", (event, status) => {
   hasClickCut = status;
 });
-
-launchLabel.addEventListener(
-  "click",
-  () => {
-    if (launchInput.hasAttribute("checked")) {
-      localStorage.launchInput = 0;
-    } else {
-      localStorage.launchInput = 1;
-    }
-    ipcRenderer.send("launch", +localStorage.launchInput);
-  },
-  false
-);
 // 截图快捷键
 btnSetCaptureKey.addEventListener(
   "click",
@@ -142,35 +125,6 @@ btnDelCaptureKey.addEventListener(
     keyKind = 0;
     localStorage.captureKey = "";
     ipcRenderer.send("setCaptureKey", captureKey);
-  },
-  false
-);
-// 显示快捷键
-btnSetShowKey.addEventListener(
-  "click",
-  () => {
-    captureKeyBox.style.background = "transparent";
-    captureKeyBox.style.color = "#333";
-    showKeyBox.style.background = "#6F9AEF";
-    showKeyBox.style.color = "#fff";
-    showKeyBox.innerHTML = "输入显示快捷键";
-    captureKeyBox.innerHTML = captureKey ? captureKey : "无截图快捷键";
-    shortKey = "";
-    split = "";
-    keyKind = 2;
-  },
-  false
-);
-btnDelShowKey.addEventListener(
-  "click",
-  () => {
-    showKeyBox.style.background = "transparent";
-    showKeyBox.style.color = "#333";
-    showKeyBox.innerHTML = "无显示快捷键";
-    showKey = "";
-    keyKind = 0;
-    localStorage.showKey = "";
-    ipcRenderer.send("setShowKey", showKey);
   },
   false
 );
