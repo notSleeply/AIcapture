@@ -138,6 +138,7 @@ function captureWin(mainWindow, imgDir) {
       title: "AI分析",
       autoHideMenuBar: true,
       frame: false,
+      alwaysOnTop:true,
       webPreferences: {
         devTools: true,
         nodeIntegration: false,
