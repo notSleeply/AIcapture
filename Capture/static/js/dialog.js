@@ -3,12 +3,10 @@ import { formatAIMessage } from "./tools/formatAIMessage.js";
 function $(id) { return document.getElementById(id); }
 
 // 元素引用
-const capturedImage = $('capturedImage');
 const chatMessages = $('chatMessages');
 const userInput = $('userInput');
 const sendButton = $('sendButton');
 const btnClose = $('btnClose');
-const statusText = $('statusText');
 
 // 状态变量
 let imagePath = null;
@@ -23,9 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.myAPI.getImageData().then(data => {
         if (data && data.success) {
             if (data.imageDataUrl) {
-                // 使用DataURL直接设置图片源用于预览
-                capturedImage.src = data.imageDataUrl;
-                
                 // 保存图片路径
                 imagePath = data.imagePath;
                 
