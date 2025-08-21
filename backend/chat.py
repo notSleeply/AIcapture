@@ -2,18 +2,30 @@ from openai import OpenAI
 import base64
 from io import BytesIO
 from PIL import Image
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # 从根目录的 .env 加载配置
+
 # 通过 pip install volcengine-python-sdk[ark] 安装方舟SDK
 from volcenginesdkarkruntime import Ark
 
 # 创建火山引擎客户端(用于视觉功能)
+ark_api_key = os.getenv("VOLC_ARK_API_KEY")
+if not ark_api_key:
+    raise RuntimeError("VOLC_ARK_API_KEY 未在环境变量中配置，请在 .env 中设置")
 ark_client = Ark(
-    api_key="99bab5bf-fdea-4d77-a6bc-b42ffbe2ddab"
+    api_key=ark_api_key
 )
 # 火山引擎视觉模型ID
-vision_model = "doubao-1-5-vision-pro-32k-250115"
+vision_model = os.getenv("VISION_MODEL", "doubao-1-5-vision-pro-32k-250115")
 
 # 创建OpenAI客户端
-client = OpenAI(api_key="sk-f545d93f2766414fb33a02bd20eab32a", base_url="https://api.deepseek.com")
+openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_base_url = os.getenv("OPENAI_BASE_URL", "https://api.deepseek.com")
+if not openai_api_key:
+    raise RuntimeError("OPENAI_API_KEY 未在环境变量中配置，请在 .env 中设置")
+client = OpenAI(api_key=openai_api_key, base_url=openai_base_url)
 
 # 用于存储会话历史的字典，键为会话ID，值为消息列表
 chat_history = {}

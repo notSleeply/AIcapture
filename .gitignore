@@ -8,3 +8,121 @@
 *.DS_Store
 *.eslintcache
 *.log*
+
+# 常见操作系统文件
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon
+
+# Node / Electron
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json.tmp
+dist/
+build/
+out/
+/*.local
+
+# Electron builder 输出
+release/
+*.AppImage
+*.exe
+*.dmg
+*.zip
+*.7z
+
+# 前端静态构建
+Capture/dist/
+Capture/build/
+Capture/.webpack/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.venv*/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# 虚拟环境和依赖缓存
+.python-version
+.python-eggs/
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# 日志和临时文件
+logs/
+*.log
+*.log.*
+npm-debug.log*
+coverage/
+coverage.*
+*.cover
+*.py,cover
+.cache
+tmp/
+temp/
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Secrets and environment
+.env
+.env.local
+.env.*.local
+# 保留示例文件
+!.env.example
+
+# Media / large files (项目中如需保留请调整)
+Capture/img/
+
+# 打包生成文件
+*.tgz
+*.gz
+*.zip
+*.tar
+
+# Coverage reports
+coverage/
+htmlcov/
+
+# Test output
+.tox/
+.nox/
+
+# Python caches
+.mypy_cache/
+.pytest_cache/
+
+# Misc
+*.pem
+*.key
+*.crt
+
+# Ensure git keeps empty directories if needed
+# Add a .gitkeep file in folder to keep it committed when empty
